@@ -1,9 +1,13 @@
 #this file was created by Sawyer Stout
 #Sources: kidscancode.com, 
-#Goals
-#other cars, random movement, screen moves up, points increase the longer you stay alive, 
-#if you hit another car, you die and restart
-#obtain speed boosts, maybe a health bar?
+#Looks and shares code with my previous doodle jump game where it continuously moves up and dodges obstacles. 
+#I copied and pasted my doodle jump code and I will edit it and make a lot of changes to make it look better and with more classes.
+#Goals 
+#other mobs, random movement, screen moves up, points increase the longer you stay alive, 
+#if you hit another mob, you die and restart
+#obtain speed boosts, maybe a health bar? 
+
+# test comment
 
 # import libraries and modules
 from typing import Self
@@ -15,25 +19,6 @@ import os
 from settings import *
 from sprites import *
 import math
-
-#Goals: 
-#jump, don't fall off plats 
-#Feedback score at the top of screen, 
-#Freedom: run side to side
-#jump as many plats as possible
-
-#Feature goals: 
-#screen moves up as player jumps - like doodle
-#add new plats
-#add to score with plats passed
-#wrap around if the player goes on one side and reappears on the other
-
-#Have platforms spawn when I move up, like Doodle Jump
-#Display the score, increases as player moves up platforms
-#respawn at the bottom when player falls, and camera follows player as they fall
-#If player goes off screen on the sides, make them wrap around and appear on the other side
-
-
 vec = pg.math.Vector2
 
 # setup asset folders here - images sounds etc.
@@ -52,14 +37,20 @@ class Game:
         self.running = True
         self.font_name = pg.font.match_font(FONT_NAME)
     
+    def load_data(self):
+        self.dir = os.path.dirname(__file__)
+#        img_dir = os.path.join(self.dir, 'images')
+        self.spritesheet = Spritesheet(os.path.join(img_folder, SPRITESHEET))
+
     def new(self):
         # create a group for all sprites
         self.score = 0
-        self.all_sprites = pg.sprite.Group()
+        self.all_sprites = pg.sprite.LayeredUpdates()
         self.all_platforms = pg.sprite.Group()
-        self.all_mobs = pg.sprite.Group()
+        self.mobs = pg.sprite.Group()
         # instantiate classes
         self.player = Player(self)
+        self.mob_timer = 0
         # add instances to groups
         self.all_sprites.add(self.player)
 
@@ -69,10 +60,10 @@ class Game:
             self.all_sprites.add(plat)
             self.all_platforms.add(plat)
 
-        for m in range(0,10):
-            m = Mob(randint(0, WIDTH), randint(0, math.floor(HEIGHT/2)), 20, 20, "normal")
-            self.all_sprites.add(m)
-            self.all_mobs.add(m)
+        #for m in range(0,10):
+        #    m = Mob(randint(0, WIDTH), randint(0, math.floor(HEIGHT/2)), 20, 20, "normal")
+        #    self.all_sprites.add(m)
+        #    self.all_mobs.add(m)
 
         self.run()
     
@@ -86,6 +77,16 @@ class Game:
 
     def update(self):
         self.all_sprites.update()
+
+        #spawn enemy
+        now = pg.time.get_ticks()
+        if now - self.mob_timer > 5000 + random.choice([-1000, -500, 0, 500, 1000]):
+            self.mob_timer = now
+            Mob(self)
+        # hit enemy
+        mob_hits = pg.sprite.spritecollide(self.player, self.mobs, False)
+        if mob_hits: 
+            self.playing = False
 
         # this is what prevents the player from falling through the platform when falling down...
         if self.player.vel.y >= 0:
@@ -110,6 +111,8 @@ class Game:
         # if player touches top 1/4 of screen, advance screen up
         if self.player.rect.top <= HEIGHT / 4:
             self.player.pos.y += abs(self.player.vel.y)
+            for mob in self.mobs: 
+                mob.rect.y += abs(self.player.vel.y)
             for plat in self.all_platforms: 
                 plat.rect.y += abs(self.player.vel.y)
                 if plat.rect.top >= HEIGHT:
@@ -176,10 +179,16 @@ class Game:
         self.draw_text("Press any key to play", 22, WHITE, WIDTH / 2, HEIGHT * 3 / 4)
         pg.display.flip()
         self.wait_for_key()
-
-
+    
+    #game over screen
     def show_go_screen(self):
-        pass
+        self.screen.fill(BLACK)
+        self.draw_text('Game Over!', 48, WHITE, WIDTH / 2, HEIGHT / 4)
+        self.draw_text("Score: " + str(self.score), 22, WHITE, WIDTH / 2, HEIGHT / 2)
+        self.draw_text("Press any key to play again", 22, WHITE, WIDTH / 2, HEIGHT * 3 / 4)
+        pg.display.flip()
+        self.wait_for_key()
+
     
     #def to wait for key input to start game
     def wait_for_key(self):
