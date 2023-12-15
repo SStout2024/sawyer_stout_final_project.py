@@ -3,11 +3,14 @@
 # KidsCanCode - Game Development with Pygame video series
 # Video link: https://youtu.be/OmlQ0XCvIn0 
 
+
+
 # game settings 
 WIDTH = 500
 HEIGHT = 500
 FPS = 30
 FONT_NAME = 'arial'
+SPRITESHEET = "spritesheet_jumper.png"
 
 # player settings
 PLAYER_JUMP = 30
@@ -23,6 +26,13 @@ BLUE = (0, 0, 255)
 PINK = (255, 192, 203)
 BGCOLOR = PINK
 
+# game properties
+MOB_FREQ = 5000
+PLAYER_LAYER = 2
+PLATFORM_LAYER = 1
+POW_LAYER = 1
+MOB_LAYER = 2
+
 
 
 PLATFORM_LIST = [(0, HEIGHT - 40, WIDTH, 40, "normal"),
@@ -30,3 +40,4 @@ PLATFORM_LIST = [(0, HEIGHT - 40, WIDTH, 40, "normal"),
                  (125, HEIGHT - 350, 100, 20, "moving"),
                  (222, 200, 100, 20, "moving"),
                  (175, 100, 50, 20, "moving")]
+
